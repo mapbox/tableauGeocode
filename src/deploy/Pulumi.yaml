@@ -1,0 +1,3 @@
+name: deployGeocode
+runtime: nodejs
+description: A small script to deploy TabPy with Geocoding to AWS
