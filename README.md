@@ -127,9 +127,9 @@ For reverse geocoding, if you wish to filter to specific countries, you will eit
 **Column-based approach**
 
 ```python
-def geocodeReverse(input):
+def geocodeReverse(input,token):
     url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?access_token=%s&types=address&country=%s&limit=1"
-    access_token = "pk.eyJ1IjoiY2hyaXN0b29tZXkiLCJhIjoiY2phMnVxc2p4M2NmbTM0cGM4aXpscGtmZyJ9.Pap5yG2c5LwCWAXuQwq7pg"
+    access_token = token
     input['coords'] = input['longitude'].map(str)+","+input['latitude'].map(str)
     coordinates = list(input["coords"])
     countries = list(input["countries"])
@@ -139,9 +139,9 @@ def geocodeReverse(input):
 **Hard code approach**
 
 ```python
-def geocodeReverse(input):
+def geocodeReverse(input,token):
     url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?access_token=%s&types=address&country=%s&limit=1"
-    access_token = "pk.eyJ1IjoiY2hyaXN0b29tZXkiLCJhIjoiY2phMnVxc2p4M2NmbTM0cGM4aXpscGtmZyJ9.Pap5yG2c5LwCWAXuQwq7pg"
+    access_token = token
     input['coords'] = input['longitude'].map(str)+","+input['latitude'].map(str)
     coordinates = list(input["coords"])
     countries = 'us'

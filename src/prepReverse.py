@@ -3,7 +3,7 @@ sys.path.append('/TabPy')
 from geocode import geocodeReverse
 
 def prepGeo(input):
-    prepData = geocodeReverse(input)
+    prepData = geocodeReverse(input,"token")
     return prepData
 
 def get_output_schema():
