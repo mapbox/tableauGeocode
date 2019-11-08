@@ -51,7 +51,7 @@ docker ps
 
 ![ps](assets/dockerps.png)
 
-Once you have confirmed that your image is running, open Tableau Prep 2019.3 and add a [Script node](https://help.tableau.com/current/prep/en-us/prep_scripts_TabPy.htm#add-a-script-to-your-flow).
+Once you have confirmed that your image is running, open Tableau Prep 2019.3 (and above) and add a [Script node](https://help.tableau.com/current/prep/en-us/prep_scripts_TabPy.htm#add-a-script-to-your-flow).
 
 Your configuration will look as follows:
 
@@ -122,7 +122,7 @@ For more details on these options, consult the [Geocoding API documentation](htt
 
 ### Customization Example
 
-For reverse geocoding, if you wish to filter to specific countries, you will either need to include a column in your data called "countries" (or similar) or hard code it into your script.
+For reverse geocoding, if you wish to filter to specific countries, you will either need to include a column in your data called "countries" (or similar) or hard code it into your script. All edits would need to be made to the [core geocoding script](src/geocode.py).
 
 **Column-based approach**
 
@@ -150,7 +150,7 @@ def geocodeReverse(input,token):
 
 ### Rate Limiting
 
-The default rate limit for Geocoding API requsts is 600/minute. The included Python scripts do not have an explicit rate limiter. Instead, the script uses threading to achieve scale.
+The default rate limit for Geocoding API requsts is 600/minute. The included [Python scripts](src/geocode.py) do not have an explicit rate limiter. Instead, the script uses threading to achieve scale.
 
 ```python
 with ThreadPoolExecutor(max_workers=1) as executor:
