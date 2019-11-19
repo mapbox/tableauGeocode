@@ -195,4 +195,4 @@ Our estimate is that a single thread will approach `1200` records per minute, me
 with ThreadPoolExecutor(max_workers=1) as executor:
 ```
 
-The parameter `max_workers=1` is how to control scale.  So if you have a `RATE_LIMIT` of `2400`, you can set `max_workers` to 2 split the work across two parallel threads leading to roughly half the time to completion. Parallelism will scale linearky, but there are diminishing returns as thread values increase.
+The parameter `max_workers=1` is how to control scale.  So if you have a `RATE_LIMIT` of `2400`, you can set `max_workers` to 2 split the work across two parallel threads leading to roughly half the time to completion. Parallelism will scale linearly, but there are diminishing returns as thread values increase.
