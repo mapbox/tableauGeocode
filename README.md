@@ -89,7 +89,7 @@ from geocode import geocodeForward
 
 # This is the function you reference in Tableau Prep
 def prepGeo(input):
-    prepData = geocodeForward(input)
+    prepData = geocodeForward(input,"token")
     return prepData
 
 # This is the output schema that is passed to Tableau Prep when geocoding is complete
