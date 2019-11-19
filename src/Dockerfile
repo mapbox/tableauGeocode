@@ -7,7 +7,7 @@ RUN yum install python36u python36u-pip tmux -y
 
 # Python dependencies
 RUN python3 -m pip install --upgrade pip 
-RUN python3 -m pip install pandas tabpy
+RUN python3 -m pip install pandas tabpy ratelimit
 
 # Where everything lives
 WORKDIR /TabPy

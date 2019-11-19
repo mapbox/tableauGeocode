@@ -6,11 +6,23 @@ import pandas as pd
 import ssl
 import json
 import os
+from ratelimit import limits, sleep_and_retry
 
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
+
+# This is the rate limit period in seconds
+# Mapbox rate limits on a per-minute basis, with geocoding set at 600 requests per minute
+RATE_LIMIT = 600
+LIMIT_DURATION = 60
+
+# Set up rate limiting for API calls
+# If rate limit is exceeded, sleep the thread and wait until the LIMIT_DURATION has lapsed
+# If you request an increased rate limit, update RATE_LIMIT above
+@sleep_and_retry
+@limits(calls=RATE_LIMIT, period=LIMIT_DURATION)
 def req(url):
     try:
         with urlopen(url, context=ctx) as conn:
@@ -19,10 +31,11 @@ def req(url):
         print(url)
 
 def geocodeForward(input,token):
-    url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?access_token=%s&types=address&limit=1"
+    url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?pluginName=tableauGeocoder&access_token=%s&types=address&limit=1"
     access_token = token
     addr = list(input["Address"])
     urls = [url % (quote(list_item), access_token) for list_item in addr]
+    # Once you exceed 1200 req/minute, then consider using more threads to achieve performance
     with ThreadPoolExecutor(max_workers=1) as executor:
         results = list(executor.map(req, urls))
         parsed_results = [json.loads(result.decode("utf-8")) for result in results]
@@ -69,7 +82,7 @@ def geocodeForward(input,token):
         return dataOut
 
 def geocodeReverse(input,token):
-    url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?access_token=%s&types=address&limit=1"
+    url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?pluginName=tableauGeocoder&access_token=%s&types=address&limit=1"
     access_token = token
     input['coords'] = input['Longitude'].map(str)+","+input['Latitude'].map(str)
     coordinates = list(input["coords"])

@@ -4,6 +4,22 @@ This solution allows you to use Tableau Prep for performing forward and reverse 
 
 This repositoary also includes instructions for launching your own TabPy instance, there is a sample script for deploying this on AWS for testing and use at scale.
 
+<!-- toc -->
+
+- [Tableau Geocoding with Mapbox](#tableau-geocoding-with-mapbox)
+  - [Geocoding](#geocoding)
+  - [Usage](#usage)
+    - [Prerequisites](#prerequisites)
+    - [Build and Connect](#build-and-connect)
+    - [Geocode with Prep](#geocode-with-prep)
+  - [Forward Geocoding Requirements](#forward-geocoding-requirements)
+  - [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
+  - [Customization](#customization)
+    - [Customization Example](#customization-example)
+    - [Rate Limiting](#rate-limiting)
+
+<!-- tocstop -->
+
 ## Geocoding
 
 Tableau Desktop and Prep already geocode for a specific set of geographies (known as Geographic Roles).
@@ -36,7 +52,7 @@ Once you have satistifed the prerequisites, run the following commands
 
 ```bash
 cd src
-docker build --tag tabpy
+docker build --tag tabpy .
 docker run -d -p 80:80 tabpy
 ```
 
@@ -150,12 +166,33 @@ def geocodeReverse(input,token):
 
 ### Rate Limiting
 
-The default rate limit for Geocoding API requsts is 600/minute. The included [Python scripts](src/geocode.py) do not have an explicit rate limiter. Instead, the script uses threading to achieve scale.
+The default rate limit for Geocoding API requsts is 600/minute. The included [Python scripts](src/geocode.py) enforce this limit with the [ratelimit](https://github.com/tomasbasham/ratelimit) package. If you exceed your rate limit, your results will fail. If you would like to know more about rate limiting, read the [Mapbox API documentation](https://docs.mapbox.com/api/#rate-limits).
+
+```python
+# This is the rate limit period in seconds
+# Mapbox rate limits on a per-minute basis, with geocoding set at 600 requests per minute
+RATE_LIMIT = 600
+LIMIT_DURATION = 60
+
+# Set up rate limiting for API calls
+# If rate limit is exceeded, sleep the thread and wait until the LIMIT_DURATION has lapsed
+# If you request an increased rate limit, update RATE_LIMIT above
+@sleep_and_retry
+@limits(calls=RATE_LIMIT, period=LIMIT_DURATION)
+def req(url):
+    try:
+        with urlopen(url, context=ctx) as conn:
+            return conn.read()
+    except error.HTTPError as e:
+        print(url)
+```
+
+`RATE_LIMIT` is the number of requests. `LIMIT_DURATION` is the amount of time that `RATE_LIMIT` is measured against.
+
+Our estimate is that a single thread will approach `1200` records per minute, meaning that any `RATE_LIMIT` above that value will be redundant as the script cannot process that much data. You can achieve better performance with threading. This is achieved in the following line of code:
 
 ```python
 with ThreadPoolExecutor(max_workers=1) as executor:
 ```
 
-The parameter `max_workers=1` is how to control scale. Parallelism is roughly linear, but there are diminishing returns as thread values increase. If you exceed your rate limit, your results will fail. If you would like to know more about rate limiting, read the [Mapbox API documentation](https://docs.mapbox.com/api/#rate-limits).
-
-Our estimate is that a single thread will approach `1200` records per minute, so be cautious in geocoding large numbers of points. You can also contact Mapbox if you would discuss having your rate limit raised.
+The parameter `max_workers=1` is how to control scale.  So if you have a `RATE_LIMIT` of `2400`, you can set `max_workers` to 2 split the work across two parallel threads leading to roughly half the time to completion. Parallelism will scale linearky, but there are diminishing returns as thread values increase.
