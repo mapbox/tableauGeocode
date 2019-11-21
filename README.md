@@ -6,18 +6,19 @@ This repositoary also includes instructions for launching your own TabPy instanc
 
 <!-- toc -->
 
-- [Geocoding](#geocoding)
-- [Usage](#usage)
-  * [Prerequisites](#prerequisites)
-  * [Geocoding in Prep](#geocoding-in-prep)
-  * [Forward Geocoding Requirements](#forward-geocoding-requirements)
-  * [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
-- [Customization](#customization)
-  * [Geocoding Customizations](#geocoding-customizations)
-  * [Build and Connect](#build-and-connect)
-  * [Customization Example](#customization-example)
-  * [Rate Limiting](#rate-limiting)
-- [Production](#production)
+- [Tableau Geocoding with Mapbox](#tableau-geocoding-with-mapbox)
+  - [Geocoding](#geocoding)
+  - [Usage](#usage)
+    - [Prerequisites](#prerequisites)
+    - [Geocoding in Prep](#geocoding-in-prep)
+    - [Forward Geocoding Requirements](#forward-geocoding-requirements)
+    - [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
+  - [Customization](#customization)
+    - [Geocoding Customizations](#geocoding-customizations)
+    - [Build and Connect](#build-and-connect)
+    - [Customization Example](#customization-example)
+    - [Rate Limiting](#rate-limiting)
+  - [Production](#production)
 
 <!-- tocstop -->
 
@@ -47,8 +48,6 @@ The architecture is displayed below
 You need to have Docker installed on your platform: [Mac](https://docs.docker.com/docker-for-mac/install/) / [Windows](https://docs.docker.com/docker-for-windows/)
 
 ### Geocoding in Prep
-
-The Dockerized version of TabPy includes a validated script (`geocode.py`) for running geocodes at scale. This is copied to TabPy on build. Unless you wish to [customize](#customization), you do not need worry about this script.
 
 To get started run the following command
 
@@ -118,7 +117,7 @@ If you wish to alter the scripts or Docker image in any way, you can use the fil
 
 The forward and reverse scripts default to a global search and a limit of one. This means that the geocoder will find the *optimal single result* for your query.
 
-If you would like to refine your results, the Mapbox Geocoding API supports the following set of options.
+If you would like to refine your results, the Mapbox Geocoding API supports the following set of options. Edits to the default geocoding can be made at `src/geocode.py`. After edits, you must [rebuild the image](#build-and-connect) to validate.
 
 | Type                | Filter            | Description                                                            |
 |---------------------|-------------------|------------------------------------------------------------------------|
