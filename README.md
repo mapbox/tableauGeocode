@@ -10,13 +10,15 @@ This repositoary also includes instructions for launching your own TabPy instanc
   - [Geocoding](#geocoding)
   - [Usage](#usage)
     - [Prerequisites](#prerequisites)
-    - [Build and Connect](#build-and-connect)
-    - [Geocode with Prep](#geocode-with-prep)
-  - [Forward Geocoding Requirements](#forward-geocoding-requirements)
-  - [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
+    - [Geocoding in Prep](#geocoding-in-prep)
+    - [Forward Geocoding Requirements](#forward-geocoding-requirements)
+    - [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
   - [Customization](#customization)
+    - [Geocoding Customizations](#geocoding-customizations)
+    - [Build and Connect](#build-and-connect)
     - [Customization Example](#customization-example)
     - [Rate Limiting](#rate-limiting)
+  - [Production](#production)
 
 <!-- tocstop -->
 
@@ -43,43 +45,25 @@ The architecture is displayed below
 
 ### Prerequisites
 
-1. Install Docker for your platform: [Mac](https://docs.docker.com/docker-for-mac/install/) / [Windows](https://docs.docker.com/docker-for-windows/)
-2. Clone this repository
+You need to have Docker installed on your platform: [Mac](https://docs.docker.com/docker-for-mac/install/) / [Windows](https://docs.docker.com/docker-for-windows/)
 
-### Build and Connect
+### Geocoding in Prep
 
-Once you have satistifed the prerequisites, run the following commands
+The Dockerized version of TabPy includes a validated script (`geocode.py`) for running geocodes at scale. This is copied to TabPy on build. Unless you wish to [customize](#customization), you do not need worry about this script.
 
-```bash
-cd src
-docker build --tag tabpy .
-docker run -d -p 80:80 tabpy
-```
-
-- docker build --tag tabpy: Build and tag your image as `tabpy` for running
-- docker run -d -p 80:80 tabpy: Run the imaged `tabpy` in detached (`d`) mode, mapping the container port 80 to localhost 80 (`p 80:80`).
-
-This will build and run the TabPy instance on your machine. To confirm that the image is running, either run `curl localhost/info` from your terminal or:
+To get started run the following command
 
 ```bash
-docker ps
+docker run -d -p 80:80 mbxsolutions/tableaugeocode
 ```
 
-![ps](assets/dockerps.png)
+This will bring down the [fully built image from Docker Hub](https://hub.docker.com/r/mbxsolutions/tableaugeocode) and start it running on port 80.
 
-Once you have confirmed that your image is running, open Tableau Prep 2019.3 (and above) and add a [Script node](https://help.tableau.com/current/prep/en-us/prep_scripts_TabPy.htm#add-a-script-to-your-flow).
+The next step is to configure your geocoding script with your Mapbox token.
 
-Your configuration will look as follows:
+There are a sample scripts for forward and reverse geocoding found in this repository. You can access after cloning, or simply copy and paste from the snippet below.
 
-![config](assets/pyconfig.png)
-
-This will connect Prep to TabPy.
-
-### Geocode with Prep
-
-The Dockerized version of TabPy includes a validated script (`geocode.py`) for running geocodes at scale. This is copied to TabPy on build.
-
-This sample script, `prepForward.py` demonstrates forward geocoding. For more details about the response object read the [Geocoding API documentation](https://docs.mapbox.com/api/search/#geocoding-response-object).
+`prepForward.py` is for forward geocoding while `prepReverse.py` is for reverse geocoding. Before you begin, if you would like more details about the response object read the [Geocoding API documentation](https://docs.mapbox.com/api/search/#geocoding-response-object).
 
 ```python
 # This allows your script to access to published function
@@ -106,21 +90,32 @@ def get_output_schema():
     )
 ```
 
+After configuring your Python script, it is time to connect Tableau Prep.
+
+- Server: localhost
+- Port: 80
+- File Name: prepForward.py (if that is what you called it)
+- Function Name: prepGeo
+
 This configuation configuration should look like this:
 
 ![prepconfig](assets/prepconfig.png)
 
 Once input, your geocoding process will complete and return new data to your flow.
 
-## Forward Geocoding Requirements
+### Forward Geocoding Requirements
 
-The `prepGeo` function expects a single variable `input`. This variable MUST contain a column with an address string, with a column name of `Address`.
+Your data must contain a column titled `Address`. For the most accurate geocode, you should include as much geographic information (City, State, ZIP) in your Address.
 
-## Reverse Geocoding Requirements
+### Reverse Geocoding Requirements
 
-The `prepGeo` function expects a single variable `input`. This variable MUST contain two columns, `Longitude` and `Latitude`. These columns can be of type float or string.
+Your data contain two columns, `Longitude` and `Latitude`. These columns can be of type float or string.
 
 ## Customization
+
+If you wish to alter the scripts or Docker image in any way, you can use the files found in `src`.
+
+### Geocoding Customizations
 
 The forward and reverse scripts default to a global search and a limit of one. This means that the geocoder will find the *optimal single result* for your query.
 
@@ -135,6 +130,30 @@ If you would like to refine your results, the Mapbox Geocoding API supports the 
 | Forward             | Proximity         | Bias results that are closer to a given location                       |
 
 For more details on these options, consult the [Geocoding API documentation](https://docs.mapbox.com/api/search/).
+
+### Build and Connect
+
+Once you have made your updates, run the following commands from within `src`.
+
+```bash
+docker build --tag tabpy .
+docker run -d -p 80:80 tabpy
+```
+
+- docker build --tag tabpy: Build and tag your image as `tabpy` for running
+- docker run -d -p 80:80 tabpy: Run the imaged `tabpy` in detached (`d`) mode, mapping the container port 80 to localhost 80 (`p 80:80`).
+
+This will build and run the TabPy instance on your machine. To confirm that the image is running, either run `curl localhost/info` from your terminal or:
+
+```bash
+docker ps
+```
+
+![ps](assets/dockerps.png)
+
+Once you have confirmed that your image is running, open Tableau Prep 2019.3 (and above) and add a [Script node](https://help.tableau.com/current/prep/en-us/prep_scripts_TabPy.htm#add-a-script-to-your-flow).
+
+This will connect Prep to TabPy as indicated above.
 
 ### Customization Example
 
@@ -196,3 +215,19 @@ with ThreadPoolExecutor(max_workers=1) as executor:
 ```
 
 The parameter `max_workers=1` is how to control scale.  So if you have a `RATE_LIMIT` of `2400`, you can set `max_workers` to 2 split the work across two parallel threads leading to roughly half the time to completion. Parallelism will scale linearly, but there are diminishing returns as thread values increase.
+
+## Production
+
+If you will need geocoding at a scale beyond a single machine - you can deploy this solution into production. We provide you with a script to do this in `src/deploy`.
+
+```bash
+cd src/deploy
+npm ci
+pulumi up -y
+```
+
+We use [Pulumi](https://www.pulumi.com/docs/index.html) to deploy our version of TabPy into AWS and wrap it behind a load balancer. This will give you a stable URL for sharing in your organization, and the ability to scale it up and down based on load.
+
+When deploying, Pulumi will build from the Dockerfile included in this repository, not the published one.
+
+**WARNING**: Mapbox rate limits are applied at the token level, so if you have a rate limit of 600 and deploy 4 instances of TabPy, you could quickly go over your limit without knowing.
