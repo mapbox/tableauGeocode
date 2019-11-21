@@ -63,6 +63,8 @@ There are a sample scripts for forward and reverse geocoding found in this repos
 
 `prepForward.py` is for forward geocoding while `prepReverse.py` is for reverse geocoding. Before you begin, if you would like more details about the response object read the [Geocoding API documentation](https://docs.mapbox.com/api/search/#geocoding-response-object).
 
+Paste your Mapbox token to replace "token" and save.
+
 ```python
 # This allows your script to access to published function
 import sys
@@ -71,6 +73,7 @@ from geocode import geocodeForward
 
 # This is the function you reference in Tableau Prep
 def prepGeo(input):
+    # YOUR TOKEN GOES HERE
     prepData = geocodeForward(input,"token")
     return prepData
 
