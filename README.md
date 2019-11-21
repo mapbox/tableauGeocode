@@ -6,19 +6,18 @@ This repositoary also includes instructions for launching your own TabPy instanc
 
 <!-- toc -->
 
-- [Tableau Geocoding with Mapbox](#tableau-geocoding-with-mapbox)
-  - [Geocoding](#geocoding)
-  - [Usage](#usage)
-    - [Prerequisites](#prerequisites)
-    - [Geocoding in Prep](#geocoding-in-prep)
-    - [Forward Geocoding Requirements](#forward-geocoding-requirements)
-    - [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
-  - [Customization](#customization)
-    - [Geocoding Customizations](#geocoding-customizations)
-    - [Build and Connect](#build-and-connect)
-    - [Customization Example](#customization-example)
-    - [Rate Limiting](#rate-limiting)
-  - [Production](#production)
+- [Geocoding](#geocoding)
+- [Usage](#usage)
+  * [Prerequisites](#prerequisites)
+  * [Geocoding in Prep](#geocoding-in-prep)
+  * [Forward Geocoding Requirements](#forward-geocoding-requirements)
+  * [Reverse Geocoding Requirements](#reverse-geocoding-requirements)
+- [Customization](#customization)
+  * [Geocoding Customizations](#geocoding-customizations)
+  * [Build and Connect](#build-and-connect)
+  * [Customization Example](#customization-example)
+  * [Rate Limiting](#rate-limiting)
+- [Production](#production)
 
 <!-- tocstop -->
 
