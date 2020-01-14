@@ -1,6 +1,6 @@
 # Tableau Geocoding with Mapbox
 
-<a href="https://youtu.be/ZOhZrXBjPyY" target="_blank"><img style="float: right;" src="assets/video-thumbnail.png" width="400" hspace="20"></a>
+<a href="https://youtu.be/ZOhZrXBjPyY" target="_blank"><img align="right" src="assets/video-thumbnail.png" width="400" hspace="20"></a>
 
 This solution allows you to use Tableau Prep for performing forward and reverse geocoding, integrated via [TabPy](https://github.com/tableau/TabPy).
 
