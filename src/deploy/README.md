@@ -27,7 +27,7 @@ To install Docker, follow their [Getting Started](https://docs.docker.com/instal
 After cloning the repository
 
 ```bash
-cd src/depoy
+cd src/deploy
 npm ci
 pulumi config set aws:region <yourAWSRegion>
 pulumi up -y

@@ -86,7 +86,7 @@ def geocodeReverse(input,token):
     access_token = token
     input['coords'] = input['Longitude'].map(str)+","+input['Latitude'].map(str)
     coordinates = list(input["coords"])
-    urls = [url % (quote(list_item), access_token) for list_item in coordinates]
+    urls = [url % (quote(str(list_item)), access_token) for list_item in coordinates]
     with ThreadPoolExecutor(max_workers=1) as executor:
         results = list(executor.map(req, urls))
         parsed_results = [json.loads(result.decode("utf-8")) for result in results]
