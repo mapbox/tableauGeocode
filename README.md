@@ -4,7 +4,7 @@
 
 This solution allows you to use Tableau Prep for performing forward and reverse geocoding, integrated via [TabPy](https://github.com/tableau/TabPy). 
 
-> You will need to have Permanent Geocoding enabled on your Mapbox account in order to use this solution.
+*You will need to have Permanent Geocoding enabled on your Mapbox account in order to use this solution. Contact [Mapbox](https://www.mapbox.com/) to get this enabled for your account.*
 
 This repository also includes instructions for launching your own TabPy instance, there is a sample script for deploying this on AWS for testing and use at scale.
 
