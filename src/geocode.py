@@ -18,6 +18,10 @@ ctx.verify_mode = ssl.CERT_NONE
 RATE_LIMIT = 600
 LIMIT_DURATION = 60
 
+errReturn = {
+  "features": []
+}
+
 # Set up rate limiting for API calls
 # If rate limit is exceeded, sleep the thread and wait until the LIMIT_DURATION has lapsed
 # If you request an increased rate limit, update RATE_LIMIT above
@@ -28,7 +32,7 @@ def req(url):
         with urlopen(url, context=ctx) as conn:
             return conn.read()
     except error.HTTPError as e:
-        print(url)
+        return json.dumps(errReturn).encode("utf-8")
 
 def geocodeForward(input,token):
     url = "https://api.mapbox.com/geocoding/v5/mapbox.places-permanent/%s.json?pluginName=tableauGeocoder&access_token=%s&types=address&limit=1"
@@ -37,8 +41,12 @@ def geocodeForward(input,token):
     urls = [url % (quote(list_item), access_token) for list_item in addr]
     # Once you exceed 1200 req/minute, then consider using more threads to achieve performance
     with ThreadPoolExecutor(max_workers=1) as executor:
-        results = list(executor.map(req, urls))
-        parsed_results = [json.loads(result.decode("utf-8")) for result in results]
+        results = (executor.map(req, urls))
+        parsed_results = (json.loads(result.decode("utf-8")) for result in results)
+        long,lat = zip(*list(result["features"][0]["geometry"]["coordinates"]
+            if len(result["features"]) > 0
+            else [None,None]
+            for result in parsed_results))
         address = [
             result["features"][0].get("place_name", None)
             if len(result["features"]) > 0
@@ -53,18 +61,6 @@ def geocodeForward(input,token):
         ]
         accuracy = [
             result["features"][0]["properties"].get("accuracy", None)
-            if len(result["features"]) > 0
-            else None
-            for result in parsed_results
-        ]
-        long = [
-            result["features"][0]["geometry"]["coordinates"][0]
-            if len(result["features"]) > 0
-            else None
-            for result in parsed_results
-        ]
-        lat = [
-            result["features"][0]["geometry"]["coordinates"][1]
             if len(result["features"]) > 0
             else None
             for result in parsed_results
@@ -88,8 +84,8 @@ def geocodeReverse(input,token):
     coordinates = list(input["coords"])
     urls = [url % (quote(str(list_item)), access_token) for list_item in coordinates]
     with ThreadPoolExecutor(max_workers=1) as executor:
-        results = list(executor.map(req, urls))
-        parsed_results = [json.loads(result.decode("utf-8")) for result in results]
+        results = (executor.map(req, urls))
+        parsed_results = (json.loads(result.decode("utf-8")) for result in results)
         address = [
             result["features"][0].get("place_name", None)
             if len(result["features"]) > 0
