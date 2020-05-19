@@ -42,7 +42,7 @@ def geocodeForward(input,token):
     # Once you exceed 1200 req/minute, then consider using more threads to achieve performance
     with ThreadPoolExecutor(max_workers=1) as executor:
         results = (executor.map(req, urls))
-        parsed_results = (json.loads(result.decode("utf-8")) for result in results)
+        parsed_results = [json.loads(result.decode("utf-8")) for result in results]
         long,lat = zip(*list(result["features"][0]["geometry"]["coordinates"]
             if len(result["features"]) > 0
             else [None,None]
